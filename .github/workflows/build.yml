@@ -18,11 +18,25 @@ jobs:
         with:
           node-version: 20
 
+      - name: Descompactar arquivos ZIP se existirem
+        run: |
+          # Descompacta qualquer arquivo .zip que estiver no repositorio
+          for zipfile in $(find . -maxdepth 2 -name "*.zip"); do
+            echo "Descompactando $zipfile..."
+            unzip -o "$zipfile"
+          done
+
       - name: Encontrar pasta e compilar web
         run: |
-          # Localiza automaticamente a pasta onde está o package.json
-          TARGET_DIR=$(find . -name "package.json" -not -path "*/node_modules/*" -exec dirname {} \;)
+          # Localiza a pasta onde está o package.json descompactado
+          TARGET_DIR=$(find . -name "package.json" -not -path "*/node_modules/*" -exec dirname {} \; | head -n 1)
           echo "Pasta do projeto encontrada: $TARGET_DIR"
+          
+          if [ -z "$TARGET_DIR" ]; then
+            echo "ERRO: Nenhum package.json foi encontrado!"
+            exit 1
+          fi
+
           cd "$TARGET_DIR"
           
           # Instala dependencias e compila
