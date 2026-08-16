@@ -18,14 +18,14 @@ jobs:
         with:
           node-version: 20
 
-      - name: Instalar dependencias e compilar web
+      - name: Encontrar pasta e compilar web
         run: |
-          # Entra na pasta do projeto se estiver dentro de uma subpasta
-          if [ -d "Perpetual Calendar Planner Pro" ]; then cd "Perpetual Calendar Planner Pro"; fi
-          if [ -d "agenda-perpétua" ]; then cd "agenda-perpétua"; fi
-          if [ -d "Agenda-Perpetua-" ]; then cd "Agenda-Perpetua-"; fi
+          # Localiza automaticamente a pasta onde está o package.json
+          TARGET_DIR=$(find . -name "package.json" -not -path "*/node_modules/*" -exec dirname {} \;)
+          echo "Pasta do projeto encontrada: $TARGET_DIR"
+          cd "$TARGET_DIR"
           
-          # Instala dependencias e compila o projeto React/Vite
+          # Instala dependencias e compila
           npm install
           npm run build || npm run generate || true
 
@@ -38,4 +38,3 @@ jobs:
             **/dist/
             build/
             **/build/
-            
